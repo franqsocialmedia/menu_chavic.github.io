@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Restaurante</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #070706;
+            color: #ffffff;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        /* Logo */
+        .logo-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #0f0f0e;
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ffac00;
+        }
+
+        /* Secciones */
+        .seccion {
+            margin: 15px 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #1a1a18;
+        }
+
+        .seccion-header {
+            position: relative;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .seccion-header:active {
+            transform: scale(0.98);
+        }
+
+        .seccion-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+        }
+
+        .seccion-titulo {
+            position: relative;
+            color: #ffac00;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .seccion-contenido {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .seccion.active .seccion-contenido {
+            max-height: 5000px;
+        }
+
+        /* Platillos */
+        .platillo {
+            border-bottom: 1px solid #2a2a28;
+        }
+
+        .platillo:last-child {
+            border-bottom: none;
+        }
+
+        .platillo-imagen-header {
+            width: 100%;
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .platillo-imagen-header::after {
+            content: '🔍';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffac00;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .platillo-imagen-header:hover::after {
+            opacity: 1;
+        }
+
+        .platillo-imagen-header:active {
+            transform: scale(0.98);
+        }
+
+        .platillo-contenido {
+            padding: 20px;
+        }
+
+        .platillo-nombre {
+            color: #ffac00;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .platillo-descripcion {
+            color: #cccccc;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        /* Modal Zoom Imagen */
+        .modal-zoom-imagen {
+            background-color: rgba(0, 0, 0, 0.95);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #ffac00;
+            padding: 20px;
+            position: relative;
+        }
+
+        .modal-zoom-imagen img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            max-height: 70vh;
+            object-fit: contain;
+        }
+
+        .btn-cerrar-zoom {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffac00;
+            border: none;
+            color: #070706;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        /* Versiones y precios */
+        .versiones {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .version {
+            flex: 1;
+            min-width: 90px;
+            text-align: center;
+            padding: 10px;
+            background-color: #2a2a28;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .version:hover {
+            border-color: #ffac00;
+        }
+
+        .version.selected {
+            background-color: #ffac00;
+            color: #070706;
+            border-color: #ffac00;
+        }
+
+        .version-nombre {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .version-precio {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Controles de cantidad */
+        .controles {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #2a2a28;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .btn-cantidad {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background-color: #ffac00;
+            color: #070706;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn-cantidad:active {
+            transform: scale(0.9);
+        }
+
+        .btn-cantidad:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .cantidad-display {
+            min-width: 40px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffac00;
+        }
+
+        .btn-agregar {
+            flex: 1;
+            padding: 12px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-agregar:active {
+            transform: scale(0.95);
+        }
+
+        /* Botón ver selección */
+        .btn-ver-seleccion {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 172, 0, 0.4);
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .btn-ver-seleccion:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .contador-items {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff0000;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0f0f0e;
+            padding: 15px;
+            text-align: center;
+            border-top: 2px solid #ffac00;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .btn-admin {
+            padding: 10px 20px;
+            background-color: #2a2a28;
+            color: #ffac00;
+            border: 1px solid #ffac00;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-admin:hover {
+            background-color: #ffac00;
+            color: #070706;
+        }
+
+        /* Modal Base */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Modal Admin Password */
+        .modal-admin {
+            background-color: #1a1a18;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            border: 2px solid #ffac00;
+        }
+
+        .modal-admin h2 {
+            color: #ffac00;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-admin input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #2a2a28;
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .modal-admin button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-cerrar-modal {
+            background-color: #555 !important;
+            color: #ffffff !important;
+        }
+
+        /* Panel de Administración */
+        .modal-panel-admin {
+            background-color: #1a1a18;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 450px;
+            border: 2px solid #ffac00;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 2px solid #2a2a28;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f0f0e;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .panel-header h2 {
+            color: #ffac00;
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .btn-cerrar-x {
+            background: none;
+            border: none;
+            color: #ffac00;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+        }
+
+        .panel-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .menu-principal {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-menu-admin {
+            padding: 15px;
+            background-color: #2a2a28;
+            color: #ffac00;
+            border: 2px solid #ffac00;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-menu-admin:active {
+            transform: scale(0.98);
+            background-color: #ffac00;
+            color: #070706;
+        }
+
+        /* Formularios Admin */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffac00;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #2a2a28;
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .btn-primario {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-secundario {
+            width: 100%;
+            padding: 12px;
+            background-color: #555;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-peligro {
+            background-color: #ff4444 !important;
+            color: #ffffff !important;
+        }
+
+        /* Lista de items editables */
+        .lista-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .item-editable {
+            background-color: #2a2a28;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-nombre {
+            color: #ffac00;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .item-detalle {
+            color: #cccccc;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .item-acciones {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-icon {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.1s;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.9);
+        }
+
+        .btn-editar {
+            background-color: #ffac00;
+            color: #070706;
+        }
+
+        .btn-eliminar {
+            background-color: #ff4444;
+            color: #ffffff;
+        }
+
+        /* Versiones en formulario */
+        .versiones-form {
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .version-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: end;
+        }
+
+        .version-item input {
+            padding: 8px;
+            background-color: #2a2a28;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .btn-agregar-version {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Modal Peticiones */
+        .modal-peticiones {
+            background-color: #1a1a18;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid #ffac00;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 2px solid #2a2a28;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: #ffac00;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .item-pedido {
+            background-color: #2a2a28;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .item-nombre-pedido {
+            color: #ffac00;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .item-precio {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .item-detalles {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .pedido-vacio {
+            text-align: center;
+            color: #888;
+            padding: 40px 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 2px solid #2a2a28;
+        }
+
+        .total-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .total-label {
+            color: #ffac00;
+        }
+
+        .total-cantidad {
+            color: #ffffff;
+            font-size: 24px;
+        }
+
+        .btn-limpiar {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff4444;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .section-title {
+            color: #ffac00;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+
+        .btn-exportar {
+            background-color: #4CAF50 !important;
+        }
+
+        .btn-importar {
+            background-color: #2196F3 !important;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <div class="logo-container">
+        <img src="https://via.placeholder.com/150" alt="Logo Restaurante" class="logo" id="logoImg">
+    </div>
+
+    <!-- Secciones del Menú -->
+    <div id="menu-container"></div>
+
+    <!-- Botón Ver Selección -->
+    <button class="btn-ver-seleccion" onclick="verSeleccion()">
+        Ver Selección
+        <span class="contador-items" id="contadorItems">0</span>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <button class="btn-admin" onclick="mostrarModalAdmin()">Acceso Administrador</button>
+    </footer>
+
+    <!-- Modal Administrador Password -->
+    <div class="modal-overlay" id="modalAdmin">
+        <div class="modal-admin">
+            <h2>Acceso Administrador</h2>
+            <input type="password" id="passwordAdmin" placeholder="Contraseña">
+            <button onclick="validarAdmin()">Acceder</button>
+            <button class="btn-cerrar-modal" onclick="cerrarModalAdmin()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Panel de Administración -->
+    <div class="modal-overlay" id="modalPanelAdmin">
+        <div class="modal-panel-admin">
+            <div class="panel-header">
+                <h2>Panel de Administración</h2>
+                <button class="btn-cerrar-x" onclick="cerrarPanelAdmin()">×</button>
+            </div>
+            <div class="panel-body" id="panelBody">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peticiones -->
+    <div class="modal-overlay" id="modalPeticiones">
+        <div class="modal-peticiones">
+            <div class="modal-header">
+                <h2>Tu Selección</h2>
+                <button class="btn-cerrar-x" onclick="cerrarModalPeticiones()">×</button>
+            </div>
+            <div class="modal-body" id="listaPeticiones"></div>
+            <div class="modal-footer">
+                <div class="total-container">
+                    <span class="total-label">TOTAL:</span>
+                    <span class="total-cantidad" id="totalPrecio">RD$0</span>
+                </div>
+                <button class="btn-limpiar" onclick="limpiarSeleccion()">Limpiar Selección</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Zoom Imagen -->
+    <div class="modal-overlay" id="modalZoomImagen">
+        <div class="modal-zoom-imagen">
+            <button class="btn-cerrar-zoom" onclick="cerrarZoomImagen()">×</button>
+            <img id="imagenZoom" src="" alt="Zoom">
+        </div>
+    </div>
+
+    <script>
+        // DATOS DEL MENÚ (simulando el .txt)
+        let menuData = {
+            logo: "https://via.placeholder.com/150",
+            secciones: [
+                {
+                    id: "sec1",
+                    nombre: "Entradas",
+                    imagen: "https://via.placeholder.com/480x120",
+                    platillos: [
+                        {
+                            id: "plat1",
+                            nombre: "Tostones con Salsa",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.",
+                            imagen: "https://via.placeholder.com/480x150/FF6B35/FFFFFF?text=Tostones",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 200 },
+                                { id: "v2", nombre: "Mediano", precio: 300 },
+                                { id: "v3", nombre: "Grande", precio: 400 }
+                            ]
+                        },
+                        {
+                            id: "plat2",
+                            nombre: "Ensalada Mixta",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Proin euismod.",
+                            imagen: "https://via.placeholder.com/480x150/4ECDC4/FFFFFF?text=Ensalada",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 150 },
+                                { id: "v2", nombre: "Mediano", precio: 250 },
+                                { id: "v3", nombre: "Grande", precio: 350 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "sec2",
+                    nombre: "Platos Principales",
+                    imagen: "https://via.placeholder.com/480x120",
+                    platillos: [
+                        {
+                            id: "plat3",
+                            nombre: "Pollo Guisado",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.",
+                            imagen: "https://via.placeholder.com/480x150/F7B731/FFFFFF?text=Pollo+Guisado",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 250 },
+                                { id: "v2", nombre: "Mediano", precio: 350 },
+                                { id: "v3", nombre: "Grande", precio: 450 }
+                            ]
+                        },
+                        {
+                            id: "plat4",
+                            nombre: "Res en Salsa",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras dignissim turpis vel justo.",
+                            imagen: "https://via.placeholder.com/480x150/EE5A6F/FFFFFF?text=Res+en+Salsa",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 300 },
+                                { id: "v2", nombre: "Mediano", precio: 400 },
+                                { id: "v3", nombre: "Grande", precio: 500 }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "sec3",
+                    nombre: "Bebidas",
+                    imagen: "https://via.placeholder.com/480x120",
+                    platillos: [
+                        {
+                            id: "plat5",
+                            nombre: "Jugo Natural",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel magna eget.",
+                            imagen: "https://via.placeholder.com/480x150/26DE81/FFFFFF?text=Jugo+Natural",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 80 },
+                                { id: "v2", nombre: "Mediano", precio: 120 },
+                                { id: "v3", nombre: "Grande", precio: 160 }
+                            ]
+                        },
+                        {
+                            id: "plat6",
+                            nombre: "Refresco",
+                            descripcion: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent.",
+                            imagen: "https://via.placeholder.com/480x150/FC5C65/FFFFFF?text=Refresco",
+                            versiones: [
+                                { id: "v1", nombre: "Pequeño", precio: 60 },
+                                { id: "v2", nombre: "Mediano", precio: 90 },
+                                { id: "v3", nombre: "Grande", precio: 120 }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Sistema de carrito
+        let carrito = [];
+        let vistaActualAdmin = 'menu';
+        let itemEditando = null;
+
+        // ============== FUNCIONES DEL MENÚ ==============
+
+        function cargarMenu() {
+            document.getElementById('logoImg').src = menuData.logo;
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+
+            menuData.secciones.forEach(seccion => {
+                const seccionHTML = crearSeccionHTML(seccion);
+                container.innerHTML += seccionHTML;
+            });
+        }
+
+        function crearSeccionHTML(seccion) {
+            let platillosHTML = '';
+            seccion.platillos.forEach(platillo => {
+                platillosHTML += crearPlatilloHTML(platillo, seccion.id);
+            });
+
+            return `
+                <div class="seccion">
+                    <div class="seccion-header" style="background-image: url('${seccion.imagen}');" onclick="toggleSeccion(this)">
+                        <h2 class="seccion-titulo">${seccion.nombre}</h2>
+                    </div>
+                    <div class="seccion-contenido">
+                        ${platillosHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function crearPlatilloHTML(platillo, seccionId) {
+            let versionesHTML = '';
+            platillo.versiones.forEach((version, index) => {
+                const selected = index === 0 ? 'selected' : '';
+                versionesHTML += `
+                    <div class="version ${selected}" onclick="selectVersion(this)" data-precio="${version.precio}">
+                        <div class="version-nombre">${version.nombre}</div>
+                        <div class="version-precio">RD${version.precio}</div>
+                    </div>
+                `;
+            });
+
+            const imagenPlatillo = platillo.imagen || 'https://via.placeholder.com/100';
+
+            return `
+                <div class="platillo" data-platillo-id="${platillo.id}" data-seccion-id="${seccionId}">
+                    <img src="${imagenPlatillo}" alt="${platillo.nombre}" class="platillo-imagen">
+                    <div class="platillo-contenido">
+                        <div class="platillo-nombre">${platillo.nombre}</div>
+                        <div class="platillo-descripcion">${platillo.descripcion}</div>
+                        
+                        <div class="versiones">
+                            ${versionesHTML}
+                        </div>
+
+                        <div class="controles">
+                            <div class="cantidad-control">
+                                <button class="btn-cantidad" onclick="cambiarCantidad(this, -1)" disabled>-</button>
+                                <div class="cantidad-display">0</div>
+                                <button class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                            </div>
+                            <button class="btn-agregar" onclick="agregarAlCarrito(this)">Elegir</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSeccion(header) {
+            const seccion = header.parentElement;
+            seccion.classList.toggle('active');
+        }
+
+        function selectVersion(versionEl) {
+            const platillo = versionEl.closest('.platillo');
+            const versiones = platillo.querySelectorAll('.version');
+            versiones.forEach(v => v.classList.remove('selected'));
+            versionEl.classList.add('selected');
+        }
+
+        function cambiarCantidad(btn, cambio) {
+            const control = btn.closest('.cantidad-control');
+            const display = control.querySelector('.cantidad-display');
+            const btnMenos = control.querySelector('.btn-cantidad:first-child');
+            let cantidad = parseInt(display.textContent);
+            
+            cantidad = Math.max(0, cantidad + cambio);
+            display.textContent = cantidad;
+            
+            btnMenos.disabled = cantidad === 0;
+        }
+
+        function agregarAlCarrito(btn) {
+            const platilloEl = btn.closest('.platillo');
+            const platilloId = platilloEl.dataset.platilloId;
+            const seccionId = platilloEl.dataset.seccionId;
+            const cantidad = parseInt(platilloEl.querySelector('.cantidad-display').textContent);
+            
+            if (cantidad === 0) {
+                alert('Por favor selecciona una cantidad');
+                return;
+            }
+
+            const versionSeleccionada = platilloEl.querySelector('.version.selected');
+            const nombreVersion = versionSeleccionada.querySelector('.version-nombre').textContent;
+            const precio = parseInt(versionSeleccionada.dataset.precio);
+            const nombrePlatillo = platilloEl.querySelector('.platillo-nombre').textContent;
+
+            const itemExistente = carrito.find(item => 
+                item.platilloId === platilloId && item.version === nombreVersion
+            );
+
+            if (itemExistente) {
+                itemExistente.cantidad += cantidad;
+            } else {
+                carrito.push({
+                    platilloId,
+                    seccionId,
+                    nombre: nombrePlatillo,
+                    version: nombreVersion,
+                    precio,
+                    cantidad
+                });
+            }
+
+            platilloEl.querySelector('.cantidad-display').textContent = '0';
+            platilloEl.querySelector('.btn-cantidad:first-child').disabled = true;
+
+            actualizarContador();
+            alert(`${nombrePlatillo} (${nombreVersion}) agregado a tu selección`);
+        }
+
+        function actualizarContador() {
+            const total = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            document.getElementById('contadorItems').textContent = total;
+        }
+
+        // ============== MODAL PETICIONES ==============
+
+        function verSeleccion() {
+            if (carrito.length === 0) {
+                alert('No has seleccionado ningún platillo');
+                return;
+            }
+            mostrarModalPeticiones();
+        }
+
+        function mostrarModalPeticiones() {
+            const lista = document.getElementById('listaPeticiones');
+            
+            if (carrito.length === 0) {
+                lista.innerHTML = '<div class="pedido-vacio">No hay productos seleccionados</div>';
+                document.getElementById('totalPrecio').textContent = 'RD$0';
+            } else {
+                let html = '';
+                let total = 0;
+
+                carrito.forEach(item => {
+                    const subtotal = item.precio * item.cantidad;
+                    total += subtotal;
+                    
+                    html += `
+                        <div class="item-pedido">
+                            <div class="item-header">
+                                <span class="item-nombre-pedido">${item.nombre}</span>
+                                <span class="item-precio">RD${subtotal}</span>
+                            </div>
+                            <div class="item-detalles">
+                                ${item.version} • Cantidad: ${item.cantidad} • RD${item.precio} c/u
+                            </div>
+                        </div>
+                    `;
+                });
+
+                lista.innerHTML = html;
+                document.getElementById('totalPrecio').textContent = `RD${total}`;
+            }
+
+            document.getElementById('modalPeticiones').classList.add('active');
+        }
+
+        function cerrarModalPeticiones() {
+            document.getElementById('modalPeticiones').classList.remove('active');
+        }
+
+        function limpiarSeleccion() {
+            if (confirm('¿Estás seguro de que quieres limpiar toda la selección?')) {
+                carrito = [];
+                actualizarContador();
+                cerrarModalPeticiones();
+            }
+        }
+
+        // ============== MODAL ADMIN ==============
+
+        function mostrarZoomImagen(imagenUrl) {
+            document.getElementById('imagenZoom').src = imagenUrl;
+            document.getElementById('modalZoomImagen').classList.add('active');
+        }
+
+        function cerrarZoomImagen() {
+            document.getElementById('modalZoomImagen').classList.remove('active');
+        }
+
+        function mostrarModalAdmin() {
+            document.getElementById('modalAdmin').classList.add('active');
+        }
+
+        function cerrarModalAdmin() {
+            document.getElementById('modalAdmin').classList.remove('active');
+            document.getElementById('passwordAdmin').value = '';
+        }
+
+        function validarAdmin() {
+            const password = document.getElementById('passwordAdmin').value;
+            if (password === 'CHAVIC25') {
+                cerrarModalAdmin();
+                abrirPanelAdmin();
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+
+        // ============== PANEL DE ADMINISTRACIÓN ==============
+
+        function abrirPanelAdmin() {
+            vistaActualAdmin = 'menu';
+            mostrarMenuPrincipalAdmin();
+            document.getElementById('modalPanelAdmin').classList.add('active');
+        }
+
+        function cerrarPanelAdmin() {
+            document.getElementById('modalPanelAdmin').classList.remove('active');
+        }
+
+        function mostrarMenuPrincipalAdmin() {
+            const panelBody = document.getElementById('panelBody');
+            panelBody.innerHTML = `
+                <div class="menu-principal">
+                    <button class="btn-menu-admin" onclick="editarLogo()">📷 Cambiar Logo</button>
+                    <button class="btn-menu-admin" onclick="gestionarSecciones()">📋 Gestionar Secciones</button>
+                    <button class="btn-menu-admin" onclick="gestionarPlatillos()">🍽️ Gestionar Platillos</button>
+                    <button class="btn-menu-admin btn-exportar" onclick="exportarMenu()">💾 Exportar Menú (.txt)</button>
+                    <button class="btn-menu-admin btn-importar" onclick="importarMenu()">📂 Importar Menú (.txt)</button>
+                </div>
+            `;
+        }
+
+        // ============== CAMBIAR LOGO ==============
+
+        function editarLogo() {
+            const panelBody = document.getElementById('panelBody');
+            panelBody.innerHTML = `
+                <h3 class="section-title">Cambiar Logo</h3>
+                <div class="form-group">
+                    <label>URL de la imagen del logo:</label>
+                    <input type="text" id="logoUrl" value="${menuData.logo}" placeholder="https://ejemplo.com/logo.jpg">
+                </div>
+                <button class="btn-primario" onclick="guardarLogo()">Guardar</button>
+                <button class="btn-secundario" onclick="mostrarMenuPrincipalAdmin()">Cancelar</button>
+            `;
+        }
+
+        function guardarLogo() {
+            const url = document.getElementById('logoUrl').value;
+            if (url) {
+                menuData.logo = url;
+                cargarMenu();
+                alert('Logo actualizado correctamente');
+                mostrarMenuPrincipalAdmin();
+            }
+        }
+
+        // ============== GESTIONAR SECCIONES ==============
+
+        function gestionarSecciones() {
+            const panelBody = document.getElementById('panelBody');
+            let seccionesHTML = '';
+            
+            menuData.secciones.forEach(seccion => {
+                seccionesHTML += `
+                    <div class="item-editable">
+                        <div class="item-info">
+                            <div class="item-nombre">${seccion.nombre}</div>
+                            <div class="item-detalle">${seccion.platillos.length} platillos</div>
+                        </div>
+                        <div class="item-acciones">
+                            <button class="btn-icon btn-editar" onclick="editarSeccion('${seccion.id}')">✏️</button>
+                            <button class="btn-icon btn-eliminar" onclick="eliminarSeccion('${seccion.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            panelBody.innerHTML = `
+                <h3 class="section-title">Gestionar Secciones</h3>
+                <div class="lista-items">
+                    ${seccionesHTML}
+                </div>
+                <button class="btn-primario" onclick="nuevaSeccion()">+ Nueva Sección</button>
+                <button class="btn-secundario" onclick="mostrarMenuPrincipalAdmin()">Volver</button>
+            `;
+        }
+
+        function nuevaSeccion() {
+            itemEditando = null;
+            mostrarFormularioSeccion();
+        }
+
+        function editarSeccion(seccionId) {
+            itemEditando = menuData.secciones.find(s => s.id === seccionId);
+            mostrarFormularioSeccion();
+        }
+
+        function mostrarFormularioSeccion() {
+            const panelBody = document.getElementById('panelBody');
+            const esNueva = !itemEditando;
+            const titulo = esNueva ? 'Nueva Sección' : 'Editar Sección';
+            
+            panelBody.innerHTML = `
+                <h3 class="section-title">${titulo}</h3>
+                <div class="form-group">
+                    <label>Nombre de la sección:</label>
+                    <input type="text" id="seccionNombre" value="${itemEditando ? itemEditando.nombre : ''}" placeholder="Ej: Entradas">
+                </div>
+                <div class="form-group">
+                    <label>URL de la imagen de fondo:</label>
+                    <input type="text" id="seccionImagen" value="${itemEditando ? itemEditando.imagen : ''}" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                <button class="btn-primario" onclick="guardarSeccion()">${esNueva ? 'Crear' : 'Guardar'}</button>
+                <button class="btn-secundario" onclick="gestionarSecciones()">Cancelar</button>
+            `;
+        }
+
+        function guardarSeccion() {
+            const nombre = document.getElementById('seccionNombre').value.trim();
+            const imagen = document.getElementById('seccionImagen').value.trim();
+
+            if (!nombre) {
+                alert('El nombre es obligatorio');
+                return;
+            }
+
+            if (itemEditando) {
+                itemEditando.nombre = nombre;
+                itemEditando.imagen = imagen;
+            } else {
+                const nuevaSeccion = {
+                    id: 'sec' + Date.now(),
+                    nombre,
+                    imagen,
+                    platillos: []
+                };
+                menuData.secciones.push(nuevaSeccion);
+            }
+
+            cargarMenu();
+            gestionarSecciones();
+        }
+
+        function eliminarSeccion(seccionId) {
+            const seccion = menuData.secciones.find(s => s.id === seccionId);
+            if (confirm(`¿Eliminar la sección "${seccion.nombre}"? Se eliminarán todos sus platillos.`)) {
+                menuData.secciones = menuData.secciones.filter(s => s.id !== seccionId);
+                cargarMenu();
+                gestionarSecciones();
+            }
+        }
+
+        // ============== GESTIONAR PLATILLOS ==============
+
+        function gestionarPlatillos() {
+            const panelBody = document.getElementById('panelBody');
+            let platillosHTML = '';
+            
+            menuData.secciones.forEach(seccion => {
+                platillosHTML += `<h4 style="color: #ffac00; margin: 15px 0 10px 0;">${seccion.nombre}</h4>`;
+                
+                seccion.platillos.forEach(platillo => {
+                    platillosHTML += `
+                        <div class="item-editable">
+                            <div class="item-info">
+                                <div class="item-nombre">${platillo.nombre}</div>
+                                <div class="item-detalle">${platillo.versiones.length} versiones</div>
+                            </div>
+                            <div class="item-acciones">
+                                <button class="btn-icon btn-editar" onclick="editarPlatillo('${seccion.id}', '${platillo.id}')">✏️</button>
+                                <button class="btn-icon btn-eliminar" onclick="eliminarPlatillo('${seccion.id}', '${platillo.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            panelBody.innerHTML = `
+                <h3 class="section-title">Gestionar Platillos</h3>
+                <div class="lista-items">
+                    ${platillosHTML}
+                </div>
+                <button class="btn-primario" onclick="nuevoPlatillo()">+ Nuevo Platillo</button>
+                <button class="btn-secundario" onclick="mostrarMenuPrincipalAdmin()">Volver</button>
+            `;
+        }
+
+        function nuevoPlatillo() {
+            itemEditando = null;
+            mostrarFormularioPlatillo();
+        }
+
+        function editarPlatillo(seccionId, platilloId) {
+            const seccion = menuData.secciones.find(s => s.id === seccionId);
+            itemEditando = {
+                seccion: seccion,
+                platillo: seccion.platillos.find(p => p.id === platilloId)
+            };
+            mostrarFormularioPlatillo();
+        }
+
+        function mostrarFormularioPlatillo() {
+            const panelBody = document.getElementById('panelBody');
+            const esNuevo = !itemEditando;
+            const titulo = esNuevo ? 'Nuevo Platillo' : 'Editar Platillo';
+            
+            let seccionesOptions = '';
+            menuData.secciones.forEach(sec => {
+                const selected = itemEditando && itemEditando.seccion.id === sec.id ? 'selected' : '';
+                seccionesOptions += `<option value="${sec.id}" ${selected}>${sec.nombre}</option>`;
+            });
+
+            let versionesHTML = '';
+            if (itemEditando) {
+                itemEditando.platillo.versiones.forEach((ver, index) => {
+                    versionesHTML += crearVersionInput(ver.nombre, ver.precio, index);
+                });
+            } else {
+                versionesHTML = crearVersionInput('Pequeño', 200, 0);
+                versionesHTML += crearVersionInput('Mediano', 300, 1);
+                versionesHTML += crearVersionInput('Grande', 400, 2);
+            }
+
+            const imagenActual = itemEditando ? itemEditando.platillo.imagen || 'https://via.placeholder.com/480x150' : 'https://via.placeholder.com/480x150';
+
+            panelBody.innerHTML = `
+                <h3 class="section-title">${titulo}</h3>
+                <div class="form-group">
+                    <label>Sección:</label>
+                    <select id="platilloSeccion" style="width: 100%; padding: 10px; background-color: #2a2a28; border: 1px solid #555; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                        ${seccionesOptions}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del platillo:</label>
+                    <input type="text" id="platilloNombre" value="${itemEditando ? itemEditando.platillo.nombre : ''}" placeholder="Ej: Tostones con Salsa">
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="platilloDescripcion" placeholder="Descripción del platillo">${itemEditando ? itemEditando.platillo.descripcion : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Imagen del platillo:</label>
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <div id="previewImagen" style="width: 100%; height: 120px; background-image: url('${imagenActual}'); background-size: cover; background-position: center; border-radius: 8px; border: 2px solid #ffac00;"></div>
+                    </div>
+                    <input type="text" id="platilloImagenURL" value="${itemEditando && itemEditando.platillo.imagen ? itemEditando.platillo.imagen : ''}" placeholder="URL de la imagen" oninput="actualizarPreviewImagen()">
+                    <div style="text-align: center; margin-top: 10px;">
+                        <span style="color: #888; font-size: 12px;">O sube una imagen:</span>
+                        <div class="file-input-wrapper" style="margin-top: 5px;">
+                            <button class="btn-primario" style="padding: 8px 15px; font-size: 14px;" onclick="document.getElementById('imagenFileInput').click()">Subir Imagen</button>
+                            <input type="file" id="imagenFileInput" accept="image/*" onchange="cargarImagenPlatillo(this)" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Versiones y Precios:</label>
+                    <div class="versiones-form" id="versionesContainer">
+                        ${versionesHTML}
+                    </div>
+                    <button class="btn-agregar-version" onclick="agregarVersionInput()">+ Agregar Versión</button>
+                </div>
+                <button class="btn-primario" onclick="guardarPlatillo()">${esNuevo ? 'Crear' : 'Guardar'}</button>
+                <button class="btn-secundario" onclick="gestionarPlatillos()">Cancelar</button>
+            `;
+        }
+
+        function crearVersionInput(nombre, precio, index) {
+            return `
+                <div class="version-item">
+                    <input type="text" placeholder="Nombre" value="${nombre}" data-version-nombre="${index}">
+                    <input type="number" placeholder="Precio" value="${precio}" data-version-precio="${index}">
+                    <button class="btn-icon btn-eliminar" onclick="eliminarVersionInput(this)">🗑️</button>
+                </div>
+            `;
+        }
+
+        function agregarVersionInput() {
+            const container = document.getElementById('versionesContainer');
+            const index = container.querySelectorAll('.version-item').length;
+            container.innerHTML += crearVersionInput('', 0, index);
+        }
+
+        function eliminarVersionInput(btn) {
+            const container = document.getElementById('versionesContainer');
+            if (container.querySelectorAll('.version-item').length > 1) {
+                btn.closest('.version-item').remove();
+            } else {
+                alert('Debe haber al menos una versión');
+            }
+        }
+
+        function guardarPlatillo() {
+            const seccionId = document.getElementById('platilloSeccion').value;
+            const nombre = document.getElementById('platilloNombre').value.trim();
+            const descripcion = document.getElementById('platilloDescripcion').value.trim();
+            const imagenURL = document.getElementById('platilloImagenURL').value.trim();
+
+            if (!nombre) {
+                alert('El nombre es obligatorio');
+                return;
+            }
+
+            const versionItems = document.querySelectorAll('.version-item');
+            const versiones = [];
+            
+            versionItems.forEach((item, index) => {
+                const nombreVer = item.querySelector(`[data-version-nombre]`).value.trim();
+                const precioVer = parseInt(item.querySelector(`[data-version-precio]`).value);
+                
+                if (nombreVer && precioVer > 0) {
+                    versiones.push({
+                        id: 'v' + (index + 1),
+                        nombre: nombreVer,
+                        precio: precioVer
+                    });
+                }
+            });
+
+            if (versiones.length === 0) {
+                alert('Debe haber al menos una versión válida');
+                return;
+            }
+
+            const seccion = menuData.secciones.find(s => s.id === seccionId);
+
+            if (itemEditando) {
+                const platillo = itemEditando.platillo;
+                platillo.nombre = nombre;
+                platillo.descripcion = descripcion;
+                platillo.imagen = imagenURL || 'https://via.placeholder.com/480x150';
+                platillo.versiones = versiones;
+                
+                if (itemEditando.seccion.id !== seccionId) {
+                    itemEditando.seccion.platillos = itemEditando.seccion.platillos.filter(p => p.id !== platillo.id);
+                    seccion.platillos.push(platillo);
+                }
+            } else {
+                const nuevoPlatillo = {
+                    id: 'plat' + Date.now(),
+                    nombre,
+                    descripcion,
+                    imagen: imagenURL || 'https://via.placeholder.com/480x150',
+                    versiones
+                };
+                seccion.platillos.push(nuevoPlatillo);
+            }
+
+            cargarMenu();
+            gestionarPlatillos();
+        }
+
+        function eliminarPlatillo(seccionId, platilloId) {
+            const seccion = menuData.secciones.find(s => s.id === seccionId);
+            const platillo = seccion.platillos.find(p => p.id === platilloId);
+            
+            if (confirm(`¿Eliminar el platillo "${platillo.nombre}"?`)) {
+                seccion.platillos = seccion.platillos.filter(p => p.id !== platilloId);
+                cargarMenu();
+                gestionarPlatillos();
+            }
+        }
+
+        // ============== EXPORTAR / IMPORTAR ==============
+
+        function actualizarPreviewImagen() {
+            const url = document.getElementById('platilloImagenURL').value;
+            const preview = document.getElementById('previewImagen');
+            if (url) {
+                preview.style.backgroundImage = `url('${url}')`;
+            } else {
+                preview.style.backgroundImage = "url('https://via.placeholder.com/480x150')";
+            }
+        }
+
+        function cargarImagenPlatillo(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataURL = e.target.result;
+                document.getElementById('platilloImagenURL').value = dataURL;
+                document.getElementById('previewImagen').style.backgroundImage = `url('${dataURL}')`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function exportarMenu() {
+            const menuJSON = JSON.stringify(menuData, null, 2);
+            const blob = new Blob([menuJSON], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'menu_restaurante.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('Menú exportado correctamente. El archivo se está descargando.');
+        }
+
+        function importarMenu() {
+            const panelBody = document.getElementById('panelBody');
+            panelBody.innerHTML = `
+                <h3 class="section-title">Importar Menú</h3>
+                <div class="form-group">
+                    <label>Selecciona el archivo .txt del menú:</label>
+                    <div class="file-input-wrapper">
+                        <button class="btn-primario" onclick="document.getElementById('fileInput').click()">Seleccionar Archivo</button>
+                        <input type="file" id="fileInput" accept=".txt" onchange="cargarArchivoMenu(this)">
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 14px; margin-top: 10px;">
+                    ⚠️ Esto reemplazará completamente el menú actual.
+                </p>
+                <button class="btn-secundario" onclick="mostrarMenuPrincipalAdmin()">Cancelar</button>
+            `;
+        }
+
+        function cargarArchivoMenu(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const nuevoMenu = JSON.parse(e.target.result);
+                    
+                    if (nuevoMenu.secciones && Array.isArray(nuevoMenu.secciones)) {
+                        if (confirm('¿Estás seguro de importar este menú? Se reemplazará el actual.')) {
+                            menuData = nuevoMenu;
+                            cargarMenu();
+                            alert('Menú importado correctamente');
+                            mostrarMenuPrincipalAdmin();
+                        }
+                    } else {
+                        alert('El archivo no tiene el formato correcto');
+                    }
+                } catch (error) {
+                    alert('Error al leer el archivo. Asegúrate de que sea un archivo válido.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ============== INICIALIZAR ==============
+
+        window.onload = function() {
+            cargarMenu();
+        };
+    </script>
+</body>
+</html>

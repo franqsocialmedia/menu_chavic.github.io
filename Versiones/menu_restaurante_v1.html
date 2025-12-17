@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Restaurante</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #070706;
+            color: #ffffff;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        /* Logo */
+        .logo-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #0f0f0e;
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ffac00;
+        }
+
+        /* Secciones */
+        .seccion {
+            margin: 15px 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #1a1a18;
+        }
+
+        .seccion-header {
+            position: relative;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .seccion-header:active {
+            transform: scale(0.98);
+        }
+
+        .seccion-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+        }
+
+        .seccion-titulo {
+            position: relative;
+            color: #ffac00;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .seccion-contenido {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .seccion.active .seccion-contenido {
+            max-height: 5000px;
+        }
+
+        /* Platillos */
+        .platillo {
+            padding: 20px;
+            border-bottom: 1px solid #2a2a28;
+        }
+
+        .platillo:last-child {
+            border-bottom: none;
+        }
+
+        .platillo-nombre {
+            color: #ffac00;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .platillo-descripcion {
+            color: #cccccc;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        /* Versiones y precios */
+        .versiones {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .version {
+            flex: 1;
+            min-width: 90px;
+            text-align: center;
+            padding: 10px;
+            background-color: #2a2a28;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .version:hover {
+            border-color: #ffac00;
+        }
+
+        .version.selected {
+            background-color: #ffac00;
+            color: #070706;
+            border-color: #ffac00;
+        }
+
+        .version-nombre {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .version-precio {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Controles de cantidad */
+        .controles {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #2a2a28;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .btn-cantidad {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background-color: #ffac00;
+            color: #070706;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn-cantidad:active {
+            transform: scale(0.9);
+        }
+
+        .btn-cantidad:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .cantidad-display {
+            min-width: 40px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffac00;
+        }
+
+        .btn-agregar {
+            flex: 1;
+            padding: 12px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-agregar:active {
+            transform: scale(0.95);
+        }
+
+        /* Botón ver selección */
+        .btn-ver-seleccion {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 172, 0, 0.4);
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .btn-ver-seleccion:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .contador-items {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff0000;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0f0f0e;
+            padding: 15px;
+            text-align: center;
+            border-top: 2px solid #ffac00;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .btn-admin {
+            padding: 10px 20px;
+            background-color: #2a2a28;
+            color: #ffac00;
+            border: 1px solid #ffac00;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-admin:hover {
+            background-color: #ffac00;
+            color: #070706;
+        }
+
+        /* Modal Admin */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-admin {
+            background-color: #1a1a18;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            border: 2px solid #ffac00;
+        }
+
+        .modal-admin h2 {
+            color: #ffac00;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-admin input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #2a2a28;
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .modal-admin button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffac00;
+            color: #070706;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .btn-cerrar-modal {
+            background-color: #555 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <div class="logo-container">
+        <img src="https://via.placeholder.com/150" alt="Logo Restaurante" class="logo">
+    </div>
+
+    <!-- Secciones del Menú -->
+    <div id="menu-container">
+        <!-- Sección 1: Entradas -->
+        <div class="seccion">
+            <div class="seccion-header" style="background-image: url('https://via.placeholder.com/480x120');" onclick="toggleSeccion(this)">
+                <h2 class="seccion-titulo">Entradas</h2>
+            </div>
+            <div class="seccion-contenido">
+                <!-- Platillo 1 -->
+                <div class="platillo">
+                    <div class="platillo-nombre">Tostones con Salsa</div>
+                    <div class="platillo-descripcion">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</div>
+                    
+                    <div class="versiones">
+                        <div class="version selected" onclick="selectVersion(this)">
+                            <div class="version-nombre">Pequeño</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Mediano</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Grande</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                    </div>
+
+                    <div class="controles">
+                        <div class="cantidad-control">
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, -1)" disabled>-</button>
+                            <div class="cantidad-display">0</div>
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                        </div>
+                        <button class="btn-agregar">Elegir</button>
+                    </div>
+                </div>
+
+                <!-- Platillo 2 -->
+                <div class="platillo">
+                    <div class="platillo-nombre">Ensalada Mixta</div>
+                    <div class="platillo-descripcion">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Proin euismod.</div>
+                    
+                    <div class="versiones">
+                        <div class="version selected" onclick="selectVersion(this)">
+                            <div class="version-nombre">Pequeño</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Mediano</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Grande</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                    </div>
+
+                    <div class="controles">
+                        <div class="cantidad-control">
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, -1)" disabled>-</button>
+                            <div class="cantidad-display">0</div>
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                        </div>
+                        <button class="btn-agregar">Elegir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 2: Platos Principales -->
+        <div class="seccion">
+            <div class="seccion-header" style="background-image: url('https://via.placeholder.com/480x120');" onclick="toggleSeccion(this)">
+                <h2 class="seccion-titulo">Platos Principales</h2>
+            </div>
+            <div class="seccion-contenido">
+                <div class="platillo">
+                    <div class="platillo-nombre">Pollo Guisado</div>
+                    <div class="platillo-descripcion">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum.</div>
+                    
+                    <div class="versiones">
+                        <div class="version selected" onclick="selectVersion(this)">
+                            <div class="version-nombre">Pequeño</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Mediano</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Grande</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                    </div>
+
+                    <div class="controles">
+                        <div class="cantidad-control">
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, -1)" disabled>-</button>
+                            <div class="cantidad-display">0</div>
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                        </div>
+                        <button class="btn-agregar">Elegir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 3: Bebidas -->
+        <div class="seccion">
+            <div class="seccion-header" style="background-image: url('https://via.placeholder.com/480x120');" onclick="toggleSeccion(this)">
+                <h2 class="seccion-titulo">Bebidas</h2>
+            </div>
+            <div class="seccion-contenido">
+                <div class="platillo">
+                    <div class="platillo-nombre">Jugo Natural</div>
+                    <div class="platillo-descripcion">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel magna eget.</div>
+                    
+                    <div class="versiones">
+                        <div class="version selected" onclick="selectVersion(this)">
+                            <div class="version-nombre">Pequeño</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Mediano</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                        <div class="version" onclick="selectVersion(this)">
+                            <div class="version-nombre">Grande</div>
+                            <div class="version-precio">RD$200</div>
+                        </div>
+                    </div>
+
+                    <div class="controles">
+                        <div class="cantidad-control">
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, -1)" disabled>-</button>
+                            <div class="cantidad-display">0</div>
+                            <button class="btn-cantidad" onclick="cambiarCantidad(this, 1)">+</button>
+                        </div>
+                        <button class="btn-agregar">Elegir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón Ver Selección -->
+    <button class="btn-ver-seleccion" onclick="verSeleccion()">
+        Ver Selección
+        <span class="contador-items">0</span>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <button class="btn-admin" onclick="mostrarModalAdmin()">Acceso Administrador</button>
+    </footer>
+
+    <!-- Modal Administrador -->
+    <div class="modal-overlay" id="modalAdmin">
+        <div class="modal-admin">
+            <h2>Acceso Administrador</h2>
+            <input type="password" id="passwordAdmin" placeholder="Contraseña">
+            <button onclick="validarAdmin()">Acceder</button>
+            <button class="btn-cerrar-modal" onclick="cerrarModalAdmin()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle secciones
+        function toggleSeccion(header) {
+            const seccion = header.parentElement;
+            seccion.classList.toggle('active');
+        }
+
+        // Seleccionar versión
+        function selectVersion(versionEl) {
+            const platillo = versionEl.closest('.platillo');
+            const versiones = platillo.querySelectorAll('.version');
+            versiones.forEach(v => v.classList.remove('selected'));
+            versionEl.classList.add('selected');
+        }
+
+        // Cambiar cantidad
+        function cambiarCantidad(btn, cambio) {
+            const control = btn.closest('.cantidad-control');
+            const display = control.querySelector('.cantidad-display');
+            const btnMenos = control.querySelector('.btn-cantidad:first-child');
+            let cantidad = parseInt(display.textContent);
+            
+            cantidad = Math.max(0, cantidad + cambio);
+            display.textContent = cantidad;
+            
+            // Habilitar/deshabilitar botón menos
+            btnMenos.disabled = cantidad === 0;
+            
+            actualizarContador();
+        }
+
+        // Actualizar contador
+        function actualizarContador() {
+            let total = 0;
+            document.querySelectorAll('.cantidad-display').forEach(display => {
+                total += parseInt(display.textContent);
+            });
+            document.querySelector('.contador-items').textContent = total;
+        }
+
+        // Ver selección (placeholder)
+        function verSeleccion() {
+            alert('Módulo de peticiones - Próximamente');
+        }
+
+        // Modal Admin
+        function mostrarModalAdmin() {
+            document.getElementById('modalAdmin').classList.add('active');
+        }
+
+        function cerrarModalAdmin() {
+            document.getElementById('modalAdmin').classList.remove('active');
+            document.getElementById('passwordAdmin').value = '';
+        }
+
+        function validarAdmin() {
+            const password = document.getElementById('passwordAdmin').value;
+            if (password === 'CHAVIC25') {
+                alert('Acceso concedido - Panel de administración (Próximamente)');
+                cerrarModalAdmin();
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+    </script>
+</body>
+</html>
