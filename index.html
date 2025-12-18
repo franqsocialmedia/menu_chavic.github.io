@@ -1003,7 +1003,7 @@
 
             return `
                 <div class="platillo" data-platillo-id="${platillo.id}" data-seccion-id="${seccionId}">
-                    <img src="${imagenPlatillo}" alt="${platillo.nombre}" class="platillo-imagen">
+                    <div class="platillo-imagen-header" style="background-image: url('${imagenPlatillo}');" onclick="mostrarZoomImagen('${imagenPlatillo}')"></div>
                     <div class="platillo-contenido">
                         <div class="platillo-nombre">${platillo.nombre}</div>
                         <div class="platillo-descripcion">${platillo.descripcion}</div>
